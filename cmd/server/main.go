@@ -4,7 +4,7 @@ import (
 	"backend-wolt-go/internal/api"
 	"backend-wolt-go/internal/client"
 	"backend-wolt-go/internal/service"
-	"context"
+	// "context"
 	"log"
 	"net/http"
 
@@ -33,9 +33,14 @@ func main(){
 		Handler: r,
 	}
 
-	if err := srv.Shutdown(context.Background()); err != nil {
-		log.Fatalf("Server forced to shutdown: %v", err)
+	log.Printf("Starting server on %s", port)
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+		log.Fatalf("Could not listen on %s: %v\n", port, err)
 	}
 
-	log.Println("Server exiting")
+	// if err := srv.Shutdown(context.Background()); err != nil {
+	// 	log.Fatalf("Server forced to shutdown: %v", err)
+	// }
+
+	// log.Println("Server exiting")
 }

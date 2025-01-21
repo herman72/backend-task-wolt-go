@@ -19,18 +19,18 @@ func NewCalculatorService() CalculatorService {
 }
 
 // CalculateDistance computes the straight-line distance between two geographic points.
-func (c *calculatorService) CalculateDistance(userLat, userLon, venueLat, venueLon float64) int {
-	const earthRadius = 6371000 // Earth radius in meters
-	latDiff := degreesToRadians(venueLat - userLat)
-	lonDiff := degreesToRadians(venueLon - userLon)
+func (c *calculatorService) CalculateDistance(lat1, lon1, lat2, lon2 float64) int {
+	const EarthRadius = 6371000 // Earth radius in meters
+	lat1Rad := lat1 * math.Pi / 180
+	lon1Rad := lon1 * math.Pi / 180
+	lat2Rad := lat2 * math.Pi / 180
+	lon2Rad := lon2 * math.Pi / 180
+	dlat := lat2Rad - lat1Rad
+	dlon := lon2Rad - lon1Rad
+	a := math.Sin(dlat/2)*math.Sin(dlat/2) + math.Cos(lat1Rad)*math.Cos(lat2Rad)*math.Sin(dlon/2)*math.Sin(dlon/2)
+	d := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
 
-	a := math.Sin(latDiff/2)*math.Sin(latDiff/2) +
-		math.Cos(degreesToRadians(userLat))*math.Cos(degreesToRadians(venueLat))*
-		math.Sin(lonDiff/2)*math.Sin(lonDiff/2)
-
-	cVal := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	distance := earthRadius * cVal
-	return int(distance)
+	return int(math.Round(EarthRadius * d))
 }
 
 // CalculateDeliveryFee computes the delivery fee based on distance ranges and a base price.
@@ -60,11 +60,6 @@ func (c *calculatorService) CalculateSmallOrderSurcharge(cartValue, orderMinimum
 // CalculateTotalPrice sums up the cart value, small order surcharge, and delivery fee.
 func (c *calculatorService) CalculateTotalPrice(cartValue, smallOrderSurcharge, deliveryFee int) int {
 	return cartValue + smallOrderSurcharge + deliveryFee
-}
-
-// degreesToRadians converts degrees to radians.
-func degreesToRadians(degrees float64) float64 {
-	return degrees * math.Pi / 180
 }
 
 type DistanceRange struct {

@@ -63,7 +63,7 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 	vanueLat := staticData.VenueRaw.Location.Coordinates[1]
 
 	// Calculate delivery distance
-	distance := h.calculator.CalculateDistance(userLat, userLon, vanueLon, vanueLat)
+	distance := h.calculator.CalculateDistance(userLat, userLon, vanueLat, vanueLon)
 
 	// Calculate delivery fee
 	distanceRanges := make([]service.DistanceRange, len(dynamicData.VenueRaw.DeliverySpecs.DeliveryPricing.DistanceRanges))
@@ -78,7 +78,7 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 
 	deliveryFee, err := h.calculator.CalculateDeliveryFee(distance, dynamicData.VenueRaw.DeliverySpecs.DeliveryPricing.BasePrice, distanceRanges)
 	if err != nil {
-		http.Error(w, "Delivery not possible", http.StatusBadRequest)
+		http.Error(w, "delivery is not possible, distance too long", http.StatusBadRequest)
 		return
 	}
 
