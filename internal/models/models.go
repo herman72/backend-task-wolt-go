@@ -1,8 +1,7 @@
 package models
 
-
 type VenueStaticResponse struct {
-	VenueRaw struct {
+	VenueRaw *struct {
 		Location struct {
 			Coordinates []float64 `json:"coordinates"`
 		} `json:"location"`
@@ -10,7 +9,7 @@ type VenueStaticResponse struct {
 }
 
 type VenueDynamicResponse struct {
-	VenueRaw struct {
+	VenueRaw *struct {
 		DeliverySpecs struct {
 			OrderMinimumNoSurcharge int `json:"order_minimum_no_surcharge"`
 			DeliveryPricing         struct {
@@ -23,7 +22,7 @@ type VenueDynamicResponse struct {
 				} `json:"distance_ranges"`
 			} `json:"delivery_pricing"`
 		} `json:"delivery_specs"`
-	} `json:"venue_raw"`
+	} `json:"venue_raw,omitempty"`
 }
 
 type PriceResponse struct {

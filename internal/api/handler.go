@@ -2,22 +2,23 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 
 	"backend-wolt-go/internal/client"
-	"backend-wolt-go/internal/service"
 	"backend-wolt-go/internal/models"
+	"backend-wolt-go/internal/service"
 )
 
 type Handler struct {
-	apiClient   client.APIClient
+	apiClient  client.APIClient
 	calculator service.CalculatorService
 }
 
 func NewHandler(apiClient client.APIClient, calculator service.CalculatorService) *Handler {
 	return &Handler{
-		apiClient:   apiClient,
+		apiClient:  apiClient,
 		calculator: calculator,
 	}
 }
@@ -54,8 +55,11 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 
 	// Fetch venue data
 	staticData, dynamicData, err := h.apiClient.GetVenueData(venueSlug)
-	if err != nil {
+	if err != nil && !errors.Is(err, client.ServerError{}) {
 		http.Error(w, "Failed to fetch venue data", http.StatusInternalServerError)
+		return
+	} else if errors.Is(err, client.ServerError{}) {
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -109,10 +113,6 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-
-
-
-
 // package api
 
 // import (
@@ -124,7 +124,6 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 // 	"net/http"
 // 	"strconv"
 // )
-
 
 // func Handler(w http.ResponseWriter, r *http.Request){
 // 	venueSlug := r.URL.Query().Get("venue_slug")
@@ -165,7 +164,7 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 // 	 vanueLat := staticData.VenueRaw.Location.Coordinates[1]
 
 // 	distance := utils.CalculateDistance(userLat, userLon, vanueLat, vanueLon)
-	
+
 // 	deliveryFee, err := service.CalculateDeliveryFee(int(distance), dynamicData.VenueRaw.DeliverySpecs.DeliveryPricing.BasePrice,
 // 		dynamicData.VenueRaw.DeliverySpecs.DeliveryPricing.DistanceRanges)
 // 	if err != nil {
@@ -194,4 +193,3 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 // 	json.NewEncoder(w).Encode(response)
 
 // }
-
