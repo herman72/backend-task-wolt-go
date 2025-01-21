@@ -63,6 +63,9 @@ func FetchVenueDynamic(venueSlug string)(VenueDynamicResponse, error){
 		return VenueDynamicResponse{}, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
 	}
 
+	if err := json.NewDecoder(resp.Body).Decode(&dynamicResponse); err != nil {
+		return dynamicResponse, err
+	}
 	
 	return dynamicResponse, nil
 }
