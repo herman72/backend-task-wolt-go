@@ -2,9 +2,10 @@ package api
 
 import (
 	"backend-wolt-go/internal/client"
+	"backend-wolt-go/internal/utils"
 	"fmt"
 	"net/http"
-	// "strconv"
+	"strconv"
 )
 
 
@@ -24,15 +25,15 @@ func Handler(w http.ResponseWriter, r *http.Request){
 	// 	http.Error(w, "Invalid cart value", http.StatusBadRequest)
 	// }
 
-	// userLat, err := strconv.ParseFloat(userLatStr, 64)
-	// if err != nil {
-	// 	http.Error(w, "Invalid user latitude", http.StatusBadRequest)
-	// }
+	userLat, err := strconv.ParseFloat(userLatStr, 64)
+	if err != nil {
+		http.Error(w, "Invalid user latitude", http.StatusBadRequest)
+	}
 
-	// userLon, err := strconv.ParseFloat(userLonStr, 64)
-	// if err != nil {
-	// 	http.Error(w, "Invalid user longitude", http.StatusBadRequest)
-	// }
+	userLon, err := strconv.ParseFloat(userLonStr, 64)
+	if err != nil {
+		http.Error(w, "Invalid user longitude", http.StatusBadRequest)
+	}
 
 	staticData, err := client.FetchVenueStatic(venueSlug)
 	if err != nil {
@@ -43,8 +44,12 @@ func Handler(w http.ResponseWriter, r *http.Request){
 	// if err != nil {
 	// 	http.Error(w, "Failed to fetch venue dynamic data", http.StatusInternalServerError)
 	// }
+	 vanueLon := staticData.VenueRaw.Location.Coordinates[0]
+	 vanueLat := staticData.VenueRaw.Location.Coordinates[1]
 
-	fmt.Println(staticData)
+	distance := utils.CalculateDistance(userLat, userLon, vanueLat, vanueLon)
+	
+
 
 	return
 
