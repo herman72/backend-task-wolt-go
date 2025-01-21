@@ -4,20 +4,11 @@ import (
 	"backend-wolt-go/internal/client"
 	"backend-wolt-go/internal/service"
 	"backend-wolt-go/internal/utils"
+	"backend-wolt-go/internal/models"
 	"encoding/json"
 	"net/http"
 	"strconv"
 )
-
-type PriceResponse struct {
-	TotalPrice          int `json:"total_price"`
-	SmallOrderSurcharge int `json:"small_order_surcharge"`
-	CartValue           int `json:"cart_value"`
-	Delivery            struct {
-		Fee      int `json:"fee"`
-		Distance int `json:"distance"`
-	} `json:"delivery"`
-}
 
 
 func Handler(w http.ResponseWriter, r *http.Request){
@@ -70,7 +61,7 @@ func Handler(w http.ResponseWriter, r *http.Request){
 
 	totalPrice := service.CalculateTotalPrice(cartValue, smallOrderSurcharge, deliveryFee)
 
-	response := PriceResponse{
+	response := models.PriceResponse{
 		TotalPrice:          totalPrice,
 		SmallOrderSurcharge: smallOrderSurcharge,
 		CartValue:           cartValue,
