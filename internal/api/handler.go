@@ -39,6 +39,11 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	if lat < -90 || lat > 90 {
+		http.Error(w, "Latitude must be between -90 and 90", http.StatusBadRequest)
+		return
+	}
+
 	lonStr := r.URL.Query().Get("user_lon")
 	if lonStr == "" {
 		http.Error(w, "Missing required parameter: user_lon", http.StatusBadRequest)
@@ -48,6 +53,11 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 	lon, err := strconv.ParseFloat(lonStr, 64)
 	if err != nil {
 		http.Error(w, "Invalid user longitude", http.StatusBadRequest)
+		return
+	}
+
+	if lon < -180 || lon > 180 {
+		http.Error(w, "Longitude must be between -180 and 180", http.StatusBadRequest)
 		return
 	}
 
@@ -63,6 +73,11 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	if cartValue <= 0 {
+		http.Error(w, "Cart value must be a positive integer", http.StatusBadRequest)
+		return
+	}
+
 	orderInfo := &models.OrderInfo{
 		Slug:      venueSlug,
 		Lat:       lat,
@@ -71,7 +86,6 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 	}
 
 	response, err := h.service.CalculateDeliveryFee(r.Context(), orderInfo)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
