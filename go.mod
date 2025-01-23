@@ -2,7 +2,4 @@ module backend-wolt-go
 
 go 1.23.0
 
-require (
-	github.com/go-chi/chi/v5 v5.2.0 // indirect
-	github.com/gorilla/mux v1.8.1 // indirect
-)
+require github.com/go-chi/chi/v5 v5.2.0
