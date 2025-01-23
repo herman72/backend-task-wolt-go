@@ -11,7 +11,7 @@ func CalculateDeliveryFee(distance int, basePrice int, distanceRange []models.Di
 	for _, rangeData := range distanceRange {
 		if distance >= rangeData.Min && distance < rangeData.Max {
 			fee = basePrice + rangeData.A + int(rangeData.B*float64(distance)/10)
-			break // Stop looping once the correct range is found
+			break 
 		}
 	}
 	if fee == 0 {
