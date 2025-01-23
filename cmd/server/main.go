@@ -12,9 +12,6 @@ import (
 )
 
 func main(){
-	// http.HandleFunc("/api/v1/delivery-order-price", api.Handler)
-	// log.Println("Server started on :8000")
-	// log.Fatal(http.ListenAndServe(":8000", nil))
 	venueProvider := service.NewVenueProvider("https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues")
 	dopcService := client.NewDOPC(venueProvider)
 	handler := api.NewHandler(dopcService)
