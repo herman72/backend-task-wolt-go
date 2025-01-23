@@ -1,82 +1,87 @@
 package api
 
 import (
-	"backend-wolt-go/internal/client"
-	"backend-wolt-go/internal/service"
-	"backend-wolt-go/internal/utils"
 	"backend-wolt-go/internal/models"
+	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
 )
 
+type DOPCService interface {
+	CalculateDeliveryFee(context.Context, *models.OrderInfo) (models.PriceResponse, error)
+}
 
-func Handler(w http.ResponseWriter, r *http.Request){
+type Handler struct {
+	service DOPCService
+}
+
+func NewHandler(service DOPCService) *Handler {
+	return &Handler{service: service}
+}
+
+func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) {
 	venueSlug := r.URL.Query().Get("venue_slug")
-	cartValueStr := r.URL.Query().Get("cart_value")
-	userLatStr := r.URL.Query().Get("user_lat")
-	userLonStr := r.URL.Query().Get("user_lon")
+	if venueSlug == "" {
+		http.Error(w, "Missing required parameter: venue_slug", http.StatusBadRequest)
+		return
+	}
 
-	if venueSlug == "" || cartValueStr == "" || userLatStr == "" || userLonStr == "" {
-		http.Error(w, "Missing required parameters", http.StatusBadRequest)
+	latStr := r.URL.Query().Get("user_lat")
+	if latStr == "" {
+		http.Error(w, "Missing required parameter: user_lat", http.StatusBadRequest)
+		return
+	}
+
+	lat, err := strconv.ParseFloat(latStr, 64)
+	if err != nil {
+		http.Error(w, "Invalid user latitude", http.StatusBadRequest)
+		return
+	}
+
+	lonStr := r.URL.Query().Get("user_lon")
+	if lonStr == "" {
+		http.Error(w, "Missing required parameter: user_lon", http.StatusBadRequest)
+		return
+	}
+
+	lon, err := strconv.ParseFloat(lonStr, 64)
+	if err != nil {
+		http.Error(w, "Invalid user longitude", http.StatusBadRequest)
+		return
+	}
+
+	cartValueStr := r.URL.Query().Get("cart_value")
+	if cartValueStr == "" {
+		http.Error(w, "Missing required parameter: cart_value", http.StatusBadRequest)
 		return
 	}
 
 	cartValue, err := strconv.Atoi(cartValueStr)
 	if err != nil {
 		http.Error(w, "Invalid cart value", http.StatusBadRequest)
-	}
-
-	userLat, err := strconv.ParseFloat(userLatStr, 64)
-	if err != nil {
-		http.Error(w, "Invalid user latitude", http.StatusBadRequest)
-	}
-
-	userLon, err := strconv.ParseFloat(userLonStr, 64)
-	if err != nil {
-		http.Error(w, "Invalid user longitude", http.StatusBadRequest)
-	}
-
-	staticData, err := client.FetchVenueStatic(venueSlug)
-	if err != nil {
-		http.Error(w, "Failed to fetch venue static data", http.StatusInternalServerError)
-	}
-
-	dynamicData, err := client.FetchVenueDynamic(venueSlug)
-	if err != nil {
-		http.Error(w, "Failed to fetch venue dynamic data", http.StatusInternalServerError)
-	}
-	 vanueLon := staticData.VenueRaw.Location.Coordinates[0]
-	 vanueLat := staticData.VenueRaw.Location.Coordinates[1]
-
-	distance := utils.CalculateDistance(userLat, userLon, vanueLat, vanueLon)
-	
-	deliveryFee, err := service.CalculateDeliveryFee(int(distance), dynamicData.VenueRaw.DeliverySpecs.DeliveryPricing.BasePrice,
-		dynamicData.VenueRaw.DeliverySpecs.DeliveryPricing.DistanceRanges)
-	if err != nil {
-		http.Error(w, "delivery not possible for the given distance", http.StatusBadRequest)
 		return
 	}
-	smallOrderSurcharge := service.CalculateSmallOrderSurcharge(cartValue, dynamicData.VenueRaw.DeliverySpecs.OrderMinimumNoSurcharge)
 
-	totalPrice := service.CalculateTotalPrice(cartValue, smallOrderSurcharge, deliveryFee)
-
-	response := models.PriceResponse{
-		TotalPrice:          totalPrice,
-		SmallOrderSurcharge: smallOrderSurcharge,
-		CartValue:           cartValue,
-		Delivery: struct {
-			Fee      int `json:"fee"`
-			Distance int `json:"distance"`
-		}{
-			Fee:      deliveryFee,
-			Distance: int(distance),
-		},
+	orderInfo := &models.OrderInfo{
+		Slug:      venueSlug,
+		Lat:       lat,
+		Lon:       lon,
+		CartValue: cartValue,
 	}
 
-	// Send response
+	response, err := h.service.CalculateDeliveryFee(r.Context(), orderInfo)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
+		return
+	}
+
 
 }
-
