@@ -1,7 +1,7 @@
-package client_test
+package client
 
 import (
-	"backend-wolt-go/internal/client"
+	
 	"backend-wolt-go/internal/models"
 	"context"
 	"testing"
@@ -39,7 +39,7 @@ func TestDOPC_CalculateDeliveryFee(t *testing.T) {
 	mockProvider := new(mockVenueProvider)
 
 	// Instantiate DOPC with the mock
-	dopc := client.NewDOPC(mockProvider)
+	dopc := NewDOPC(mockProvider)
 
 	// Define some test input
 	orderInfo := &models.OrderInfo{
