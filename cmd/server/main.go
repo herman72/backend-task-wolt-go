@@ -4,6 +4,7 @@ import (
 	"backend-wolt-go/internal/api"
 	"backend-wolt-go/internal/client"
 	"backend-wolt-go/internal/service"
+	"backend-wolt-go/internal/utils"
 	"log"
 	"net/http"
 
@@ -12,7 +13,11 @@ import (
 )
 
 func main(){
-	venueProvider := service.NewVenueProvider("https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues")
+	config, err := utils.LoadConfig("config.yaml")
+	if err != nil {
+		log.Fatalf("failed to load configuration: %v", err)
+	}
+	venueProvider := service.NewVenueProvider(config.APIBaseURL)
 	dopcService := client.NewDOPC(venueProvider)
 	handler := api.NewHandler(dopcService)
 	port := ":8000"

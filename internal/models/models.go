@@ -53,3 +53,7 @@ type DistanceRange struct {
 type ServerError struct {
 	Msg string `json:"message"`
 }
+
+type Config struct {
+	APIBaseURL string `yaml:"base_url"`
+}

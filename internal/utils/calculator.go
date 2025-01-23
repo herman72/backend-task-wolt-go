@@ -11,6 +11,7 @@ func CalculateDeliveryFee(distance int, basePrice int, distanceRange []models.Di
 	for _, rangeData := range distanceRange {
 		if distance >= rangeData.Min && distance < rangeData.Max {
 			fee = basePrice + rangeData.A + int(rangeData.B*float64(distance)/10)
+			break // Stop looping once the correct range is found
 		}
 	}
 	if fee == 0 {
@@ -20,8 +21,10 @@ func CalculateDeliveryFee(distance int, basePrice int, distanceRange []models.Di
 }
 
 func CalculateSmallOrderSurcharge(cartValue int, orderMinimumNoSurcharge int) int {
-	
-	return int(math.Abs(float64(cartValue - orderMinimumNoSurcharge)))
+	if cartValue < orderMinimumNoSurcharge {
+		return orderMinimumNoSurcharge - cartValue
+	}
+	return 0
 }
 
 func CalculateTotalPrice(cartValue, smallOrderSurcharge, deliveryFee int) int {
