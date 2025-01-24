@@ -6,7 +6,12 @@ import (
 )
 
 func TestLoadConfig_Success(t *testing.T) {
-	configContent := "base_url: \"http://example.com\""
+	configContent := `
+api:
+  base_url: "http://example.com"
+server:
+  port: 8080
+`
 	tempFile, err := os.CreateTemp("", "config-*.yaml")
 	if err != nil {
 		t.Fatalf("failed to create temp file: %v", err)
@@ -17,8 +22,8 @@ func TestLoadConfig_Success(t *testing.T) {
 	if err != nil {
 		t.Errorf("unexpected error: %v", err)
 	}
-	if config.APIBaseURL != "http://example.com" {
-		t.Errorf("expected base_url to be http://example.com, got %s", config.APIBaseURL)
+	if config.API.BaseURL != "http://example.com" {
+		t.Errorf("expected base_url to be http://example.com, got %s", config.API.BaseURL)
 	}
 }
 
