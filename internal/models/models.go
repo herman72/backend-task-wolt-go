@@ -55,5 +55,12 @@ type ServerError struct {
 }
 
 type Config struct {
-	APIBaseURL string `yaml:"base_url"`
+	Server struct {
+		Port int `yaml:"port"`
+	} `yaml:"server"`
+
+	API struct {
+		BaseURL string `yaml:"base_url"`
+	} `yaml:"api"`
+
 }
