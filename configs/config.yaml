@@ -4,5 +4,3 @@ server:
 api:
   base_url: https://consumer-api.development.dev.woltapi.com/home-assignment-api/v1/venues
 
-timeout:
-  http_client: 5s # Timeout for HTTP client in seconds

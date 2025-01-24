@@ -8,25 +8,35 @@ import (
 	"strconv"
 )
 
+// DOPCService defines the interface for a service that calculates delivery fees.
 type DOPCService interface {
+	// CalculateDeliveryFee calculates the delivery fee based on order information.
+	// It takes a context and an OrderInfo struct, and returns a PriceResponse or an error.
 	CalculateDeliveryFee(context.Context, *models.OrderInfo) (models.PriceResponse, error)
 }
 
+// Handler is the HTTP handler for delivery order price calculation.
 type Handler struct {
 	service DOPCService
 }
 
+// NewHandler creates a new Handler instance with the provided DOPCService.
 func NewHandler(service DOPCService) *Handler {
 	return &Handler{service: service}
 }
 
+// GetDeliveryOrderPrice handles HTTP GET requests for calculating delivery order prices.
+// It validates query parameters, constructs the order information, calls the service,
+// and returns the delivery fee as a JSON response.
 func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) {
+	// Extract and validate the venue_slug parameter.
 	venueSlug := r.URL.Query().Get("venue_slug")
 	if venueSlug == "" {
 		http.Error(w, "Missing required parameter: venue_slug", http.StatusBadRequest)
 		return
 	}
 
+	// Extract and validate the user_lat parameter.
 	latStr := r.URL.Query().Get("user_lat")
 	if latStr == "" {
 		http.Error(w, "Missing required parameter: user_lat", http.StatusBadRequest)
@@ -44,6 +54,7 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Extract and validate the user_lon parameter.
 	lonStr := r.URL.Query().Get("user_lon")
 	if lonStr == "" {
 		http.Error(w, "Missing required parameter: user_lon", http.StatusBadRequest)
@@ -61,6 +72,7 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Extract and validate the cart_value parameter.
 	cartValueStr := r.URL.Query().Get("cart_value")
 	if cartValueStr == "" {
 		http.Error(w, "Missing required parameter: cart_value", http.StatusBadRequest)
@@ -78,6 +90,7 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Create an OrderInfo struct with the validated parameters.
 	orderInfo := &models.OrderInfo{
 		Slug:      venueSlug,
 		Lat:       lat,
@@ -85,17 +98,17 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 		CartValue: cartValue,
 	}
 
+	// Call the service to calculate the delivery fee.
 	response, err := h.service.CalculateDeliveryFee(r.Context(), orderInfo)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
+	// Set the response content type to JSON and encode the response.
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		http.Error(w, "Failed to encode response", http.StatusInternalServerError)
 		return
 	}
-
-
 }
