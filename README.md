@@ -26,19 +26,24 @@ backend-task-wolt-go/
 │   └── server/              # Main server setup
 │       └── main.go          # Application entry point
 ├── configs/                 # Configuration files
+│   └── config.yaml          # Application configuration file
 ├── internal/                # Core application logic
 │   ├── api/                 # HTTP handler logic
 │   │   └── handler.go       # Request handling and response generation
 │   ├── client/              # External API client
-│   │   └── client.go        # HTTP client to interact with Home Assignment API
+│   │   └── client.go        # HTTP client to interact with external APIs
 │   ├── models/              # Data models for static and dynamic API responses
+│   │   └── models.go        # Definitions for API data models
 │   ├── service/             # Business logic
-│   │   └── calculator.go    # Logic for fee, surcharge, and distance calculations
+│   │   ├── calculator.go    # Logic for fee, surcharge, and distance calculations
+│   │   └── venue_service.go # Venue-related service logic
 │   ├── utils/               # Utility functions
-├── test/                    # Unit and integration tests
+│   │   ├── calculator.go    # Helper functions for calculations
+│   │   └── load_config.go   # Configuration loading logic
 ├── go.mod                   # Module dependencies
 ├── go.sum                   # Module checksum
 └── README.md                # Documentation
+
 ```
 
 ## Installation
