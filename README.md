@@ -121,8 +121,3 @@ go test ./...
 - Implement rate limiting to prevent abuse.
 - Add more robust error handling and logging.
 - Use environment variables for configuration.
-
-## License
-
-This project is licensed under the MIT License.
-
