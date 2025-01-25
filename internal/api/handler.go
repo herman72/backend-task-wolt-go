@@ -10,7 +10,6 @@ import (
 // DOPCService defines the interface for a service that calculates delivery fees.
 type DOPCService interface {
 	// CalculateDeliveryFee calculates the delivery fee based on order information.
-	// It takes a context and an OrderInfo struct, and returns a PriceResponse or an error.
 	CalculateDeliveryFee(*models.OrderInfo) (models.PriceResponse, error)
 }
 
