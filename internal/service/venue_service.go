@@ -2,7 +2,6 @@ package service
 
 import (
 	"backend-wolt-go/internal/models"
-	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -26,19 +25,19 @@ func NewVenueProvider(baseURL string) *VenueProvider {
 
 // GetVenueInformation retrieves both static and dynamic information for a specific venue.
 // It makes two API calls: one for static data and another for dynamic data.
-func (v *VenueProvider) GetVenueInformation(ctx context.Context, venueSlug string) (*models.VenueStaticResponse, *models.VenueDynamicResponse, error) {
+func (v *VenueProvider) GetVenueInformation(venueSlug string) (*models.VenueStaticResponse, *models.VenueDynamicResponse, error) {
 	// Construct API URLs for static and dynamic data.
 	staticURL := fmt.Sprintf("%s/%s/static", v.baseURL, venueSlug)
 	dynamicURL := fmt.Sprintf("%s/%s/dynamic", v.baseURL, venueSlug)
 
 	// Fetch static data.
-	staticData, err := v.FetchVenueStaticData(ctx, staticURL)
+	staticData, err := v.FetchVenueStaticData(staticURL)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get static data: %w", err)
 	}
 
 	// Fetch dynamic data.
-	dynamicData, err := v.FetchVenueDynamicData(ctx, dynamicURL)
+	dynamicData, err := v.FetchVenueDynamicData(dynamicURL)
 	if err != nil {
 		return nil, nil, fmt.Errorf("failed to get dynamic data: %w", err)
 	}
@@ -47,9 +46,9 @@ func (v *VenueProvider) GetVenueInformation(ctx context.Context, venueSlug strin
 }
 
 // FetchVenueStaticData fetches the static information of a venue from the given URL.
-func (v *VenueProvider) FetchVenueStaticData(ctx context.Context, url string) (*models.VenueStaticResponse, error) {
+func (v *VenueProvider) FetchVenueStaticData(url string) (*models.VenueStaticResponse, error) {
 	// Call the API and get the response bytes.
-	respByte, err := v.callAPI(ctx, url)
+	respByte, err := v.callAPI(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call static route: %w", err)
 	}
@@ -72,9 +71,9 @@ func (v *VenueProvider) FetchVenueStaticData(ctx context.Context, url string) (*
 }
 
 // FetchVenueDynamicData fetches the dynamic information of a venue from the given URL.
-func (v *VenueProvider) FetchVenueDynamicData(ctx context.Context, url string) (*models.VenueDynamicResponse, error) {
+func (v *VenueProvider) FetchVenueDynamicData(url string) (*models.VenueDynamicResponse, error) {
 	// Call the API and get the response bytes.
-	respByte, err := v.callAPI(ctx, url)
+	respByte, err := v.callAPI(url)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call dynamic route: %w", err)
 	}
@@ -97,9 +96,9 @@ func (v *VenueProvider) FetchVenueDynamicData(ctx context.Context, url string) (
 }
 
 // callAPI makes an HTTP GET request to the given URL and returns the response body as a byte slice.
-func (v *VenueProvider) callAPI(ctx context.Context, url string) ([]byte, error) {
-	// Create a new HTTP request with the provided context and URL.
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+func (v *VenueProvider) callAPI(url string) ([]byte, error) {
+	// Create a new HTTP request with the provided URL.
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create request: %w", err)
 	}

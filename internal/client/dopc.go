@@ -3,13 +3,12 @@ package client
 import (
 	"backend-wolt-go/internal/models"
 	"backend-wolt-go/internal/utils"
-	"context"
 )
 
 // VenueProvider defines an interface for retrieving venue information.
 type VenueProvider interface {
 	// GetVenueInformation retrieves static and dynamic information for a given venue by its slug.
-	GetVenueInformation(ctx context.Context, venueSlug string) (*models.VenueStaticResponse, *models.VenueDynamicResponse, error)
+	GetVenueInformation(venueSlug string) (*models.VenueStaticResponse, *models.VenueDynamicResponse, error)
 }
 
 // DOPC (Delivery Order Price Calculator) is responsible for calculating delivery fees.
@@ -25,9 +24,9 @@ func NewDOPC(venueProvider VenueProvider) *DOPC {
 // CalculateDeliveryFee calculates the delivery fee based on order information.
 // It retrieves venue data, calculates the distance between the venue and the user,
 // determines the delivery fee, small order surcharge, and total price.
-func (d *DOPC) CalculateDeliveryFee(ctx context.Context, orderInfo *models.OrderInfo) (models.PriceResponse, error) {
+func (d *DOPC) CalculateDeliveryFee(orderInfo *models.OrderInfo) (models.PriceResponse, error) {
 	// Retrieve venue information (static and dynamic) for the given venue slug.
-	staticResponse, dynamicResponse, err := d.venueProvider.GetVenueInformation(ctx, orderInfo.Slug)
+	staticResponse, dynamicResponse, err := d.venueProvider.GetVenueInformation(orderInfo.Slug)
 	if err != nil {
 		return models.PriceResponse{}, err
 	}
