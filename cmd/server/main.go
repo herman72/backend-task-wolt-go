@@ -10,7 +10,6 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 // main is the entry point of the application. It initializes the configuration, services, and HTTP router,
@@ -33,10 +32,6 @@ func main() {
 
 	// Create a new router using the chi router package.
 	r := chi.NewRouter()
-
-	// Add middleware for logging and recovering from panics.
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
 
 	// Define an HTTP GET route for fetching delivery order prices.
 	r.Get("/api/v1/delivery-order-price", handler.GetDeliveryOrderPrice)
