@@ -2,7 +2,6 @@ package api
 
 import (
 	"backend-wolt-go/internal/models"
-	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -11,8 +10,7 @@ import (
 // DOPCService defines the interface for a service that calculates delivery fees.
 type DOPCService interface {
 	// CalculateDeliveryFee calculates the delivery fee based on order information.
-	// It takes a context and an OrderInfo struct, and returns a PriceResponse or an error.
-	CalculateDeliveryFee(context.Context, *models.OrderInfo) (models.PriceResponse, error)
+	CalculateDeliveryFee(*models.OrderInfo) (models.PriceResponse, error)
 }
 
 // Handler is the HTTP handler for delivery order price calculation.
@@ -99,9 +97,9 @@ func (h *Handler) GetDeliveryOrderPrice(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// Call the service to calculate the delivery fee.
-	response, err := h.service.CalculateDeliveryFee(r.Context(), orderInfo)
+	response, err := h.service.CalculateDeliveryFee(orderInfo)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

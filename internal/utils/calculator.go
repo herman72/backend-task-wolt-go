@@ -11,14 +11,19 @@ import (
 // Returns the delivery fee or an error if the distance exceeds the supported range.
 func CalculateDeliveryFee(distance int, basePrice int, distanceRange []models.DistanceRange) (int, error) {
 	var fee int
+	var deliveryFeeFlag bool = false
 	for _, rangeData := range distanceRange {
 		if distance >= rangeData.Min && distance < rangeData.Max {
 			fee = basePrice + rangeData.A + int(rangeData.B*float64(distance)/10)
+			deliveryFeeFlag = true
 			break
 		}
 	}
-	if fee == 0 {
-		return 0, fmt.Errorf("delivery is not possible, distance too long")
+	if !deliveryFeeFlag {
+		return 0, fmt.Errorf("distance exceeds allowable range, distance too long: %d meters", distance)
+	}
+	if deliveryFeeFlag && fee < 0 {
+		return 0, fmt.Errorf("delivery fee cannot be negative value %d", fee)
 	}
 	return fee, nil
 }
